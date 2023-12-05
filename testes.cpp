@@ -1,10 +1,9 @@
 #include "gabow.cpp"
 #include "edmonds.cpp"
-#include "spaghetti_gabow.cpp"
-#include "spaghetti_edmonds.cpp"
 #include <cassert>
 #include <cstdio>
 #include <ctime>
+#include <cstdlib>
 
 clock_t lastTime;
 
@@ -48,14 +47,14 @@ int main() {
     int edmondsScore = edmonds.findArborescence(0);
     double edmondsTime = stopTimer();
     
-    printf("Edmonds %.3lf %d\n", edmondsTime, edmondsScore);
+    printf("Edmonds %.3lfs %d\n", edmondsTime, edmondsScore);
     
     spaghetti_gabow gabow(graph);
     startTimer();
     int gabowScore = gabow.findArborescence(0);
     double gabowTime = stopTimer();
     
-    printf("Gabow %.3lf %d\n", gabowTime, gabowScore);
+    printf("Gabow %.3lfs %d\n", gabowTime, gabowScore);
     printf("-----------------\n\n");
     
   }
