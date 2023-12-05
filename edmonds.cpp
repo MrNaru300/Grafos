@@ -2,16 +2,14 @@
 
 using namespace std;
 
-// Graph class to handle the graph operations
-class Edmonds : public MSA {
+struct Edmonds : public MSA {
     // Method to find the minimum arborescence starting from a given root
-    public:
     Edmonds(Graph graph) : MSA(graph) {};
-    double findArborescence(int root) {
+    int findArborescence(int root) {
         int n = graph.n;
         vector<Edge>& edges = graph.edges;
 
-        vector<Edge> minimumEdges(n, {-1, -1, __DBL_MAX__});
+        vector<Edge> minimumEdges(n, {-1, -1, INF});
         vector<int> component(n, -1);
 
         // Find the minimum incoming edge for each node
@@ -20,8 +18,6 @@ class Edmonds : public MSA {
                 minimumEdges[e.dst] = e; // Update the minimum incoming edge
             }
         }
-
-        // 
 
         minimumEdges[root] = {root, root, 0}; // Root has no incoming edge
 
@@ -78,12 +74,3 @@ class Edmonds : public MSA {
         return findArborescence(root) + totalWeight;
     }
 };
-
-// Function to measure the current time
-double currentTime() {
-    static clock_t lastTime;
-    clock_t currentTime = clock();
-    double elapsed = double(currentTime - lastTime) / CLOCKS_PER_SEC;
-    lastTime = currentTime;
-    return elapsed;
-}

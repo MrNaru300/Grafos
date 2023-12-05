@@ -96,50 +96,54 @@ struct SkewHeap {
   }
 };
 
-const double INF = __DBL_MAX__;
-
 // Class for solving the minimum arborescence problem using Gabow's algorithm
 struct MSAGabow : public MSA {
   
-  // Constructor
+
   MSAGabow(Graph graph) : MSA(graph) { };
 
   // Solve the minimum arborescence problem for a given root
-  double findArborescence(int root) {
+  int findArborescence(int root) {
     int n = graph.n;
     vector<Edge>& edges = graph.edges;
 
     UnionFind unionFind(n);
     vector<SkewHeap> heap(n);
+
+    // Add the incoming edges to the heaps
     for (auto e: edges) 
       heap[e.dst].push(e);
 
     double score = 0;
-    vector<int> seen(n, -1);
-    seen[root] = root;
+    vector<int> seen(n, -1); // Mark the nodes that have been seen
+    seen[root] = root; // Mark the root as seen
     for (int node = 0; node < n; ++node) { // For each node node
       vector<int> path;
       for (int current = node; seen[current] < 0;) { // Find the cycle
 
-        path.push_back(current);
-        seen[current] = node;
+        path.push_back(current); // Add the current node to the path
+        seen[current] = node; // Mark the current node
         if (heap[current].isEmpty()) return -1; // Return -1 if there is no arborescence
 
-        Edge minEdge = heap[current].top(); 
-        score += minEdge.weight;
-        heap[current].add(-minEdge.weight);
-        heap[current].pop();
+        Edge minEdge = heap[current].top(); // Get the minimum incoming edge
+        score += minEdge.weight; // Add the weight of the minimum incoming edge
+        heap[current].add(-minEdge.weight); // Cancel the minimum incoming edge
+        heap[current].pop(); // Remove the minimum incoming edge
 
         int v = unionFind.root(minEdge.src); // Find the root of the other node
+
+        // If the other node is not in the cycle, continue
         if (seen[v] == node) {
           SkewHeap newHeap;
-          while (1) {
-            int w = path.back();
+          int w;
+
+          // Merge the heaps of the nodes in the cycle
+          do {
+            w = path.back();
             path.pop_back();
             newHeap.merge(heap[w]);
-            if (!unionFind.unite(v, w)) break;
-          }
-          heap[unionFind.root(v)] = newHeap;
+          } while (unionFind.unite(v, w));
+          heap[unionFind.root(v)] = newHeap; // Add the new heap to the root of the cycle
           seen[unionFind.root(v)] = -1; // Mark as unseen
         }
         current = unionFind.root(v);

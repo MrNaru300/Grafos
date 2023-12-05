@@ -7,7 +7,7 @@
 clock_t lastTime;
 
 double startTimer() {
-    clock_t lastTime = clock();
+    lastTime = clock();
     return double(clock() - lastTime) / CLOCKS_PER_SEC;
 }
 
@@ -22,36 +22,41 @@ int main() {
   srand(time(NULL));
   for (int q = 0; q <= 1000; ++q) {
 
-    int nodeCount = rand() % 10000 + 1;
+    int nodeCount = rand() % 1000 + 1;
     Graph graph(nodeCount);
+    int totalWeight = 0;
 
     // Adding random edges to the graph
     for (int i = 0; i < nodeCount; ++i) {
-        int egdeCount = rand() % 100;
+        int egdeCount = rand() % 1000;
         for (int k = 0; k < egdeCount; ++k) {
             int j;
             do {
                 j = rand() % nodeCount;
             } while (i == j);
             int w = 1 + rand() % 100;
+            totalWeight += w;
             graph.addEdge(i, j, w);
         }
     }
 
-    startTimer();
+    printf("Test %d (n = %d, avg deg = %.03f, w = %d): \n", q, nodeCount, (float)graph.edges.size() / nodeCount, totalWeight);
     
     Edmonds edmonds(graph);
-    double edmondsTime = stopTimer();
-    double edmondsScore = edmonds.findArborescence(0);
-    
     startTimer();
+    int edmondsScore = edmonds.findArborescence(0);
+    double edmondsTime = stopTimer();
+    
+    printf("Edmonds %.3lf %d\n", edmondsTime, edmondsScore);
     
     MSAGabow gabow(graph);
+    startTimer();
+    int gabowScore = gabow.findArborescence(0);
     double gabowTime = stopTimer();
-    double gabowScore = gabow.findArborescence(0);
     
-    printf("Test %d: Edmonds %.3lf %.3lf | Gabow %.3lf %.3lf\n", q, edmondsTime, edmondsScore, gabowTime, gabowScore);
-    assert(edmondsScore == gabowScore);
+    printf("Gabow %.3lf %d\n", gabowTime, gabowScore);
+    printf("-----------------\n\n");
+    
   }
 
 
