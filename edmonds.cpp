@@ -1,35 +1,17 @@
-#include <iostream>
-#include <vector>
-#include <cstdlib>
-#include <algorithm>
-#include <ctime>
+#include "graph.h"
 
 using namespace std;
 
-// Structure to represent an edge in the graph
-struct Edge {
-    int src, dst, weight;
-};
-
 // Graph class to handle the graph operations
-class Graph {
-public:
-    Graph(int n) : n(n), edges() {}
-
-    Graph clone() const {
-        Graph g(n);
-        g.edges = edges;
-        return g;
-    }
-
-    // Method to add an edge to the graph
-    void addEdge(int u, int v, int w) {
-        edges.push_back({u, v, w});
-    }
-
+class Edmonds : public MSA {
     // Method to find the minimum arborescence starting from a given root
-    int findArborescence(int root) {
-        vector<Edge> minimumEdges(n, {-1, -1, __INT_MAX__});
+    public:
+    Edmonds(Graph graph) : MSA(graph) {};
+    double findArborescence(int root) {
+        int n = graph.n;
+        vector<Edge>& edges = graph.edges;
+
+        vector<Edge> minimumEdges(n, {-1, -1, __DBL_MAX__});
         vector<int> component(n, -1);
 
         // Find the minimum incoming edge for each node
@@ -95,10 +77,6 @@ public:
         // Recursively find arborescence in the contracted graph
         return findArborescence(root) + totalWeight;
     }
-
-private:
-    int n;
-    vector<Edge> edges;
 };
 
 // Function to measure the current time
@@ -108,31 +86,4 @@ double currentTime() {
     double elapsed = double(currentTime - lastTime) / CLOCKS_PER_SEC;
     lastTime = currentTime;
     return elapsed;
-}
-
-int main() {
-    for (int q = 0; q <= 1000; ++q) {
-        srand(q);
-
-        int nodeCount = 1000;
-        Graph graph(nodeCount);
-
-        // Adding random edges to the graph
-        for (int i = 0; i < nodeCount; ++i) {
-            for (int k = 0; k < 10; ++k) {
-                int j;
-                do {
-                    j = rand() % nodeCount;
-                } while (i == j);
-                int w = 1 + rand() % 100;
-                graph.addEdge(i, j, w);
-            }
-        }
-
-        currentTime();
-        
-    
-        double result = graph.findArborescence(0);
-        cout << result << " " << currentTime() << endl;
-    }
 }

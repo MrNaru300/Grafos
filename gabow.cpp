@@ -3,14 +3,10 @@
 #include <cstdlib>
 #include <algorithm>
 #include <ctime>
+#include "graph.h"
 
 using namespace std;
 
-// Structure to represent an edge in the graph
-struct Edge { 
-  int src, dst; 
-  double weight;
-};
 
 // Disjoint set data structure for union-find operations
 struct UnionFind {
@@ -100,24 +96,19 @@ struct SkewHeap {
   }
 };
 
-const double INF = 9999;
+const double INF = __DBL_MAX__;
 
-// Class for solving the minimum arborescence problem
-struct MinimumArborescence {
-  vector<Edge> edges;
-  int n;
-
-  MinimumArborescence(int n = 0) : n(n), edges() { }
-
-  // Add an edge to the graph
-  void addEdge(int src, int dst, double weight) {
-    edges.push_back({src, dst, weight});
-  }
-
-
+// Class for solving the minimum arborescence problem using Gabow's algorithm
+struct MSAGabow : public MSA {
+  
+  // Constructor
+  MSAGabow(Graph graph) : MSA(graph) { };
 
   // Solve the minimum arborescence problem for a given root
-  double solve(int root) {
+  double findArborescence(int root) {
+    int n = graph.n;
+    vector<Edge>& edges = graph.edges;
+
     UnionFind unionFind(n);
     vector<SkewHeap> heap(n);
     for (auto e: edges) 
@@ -132,7 +123,7 @@ struct MinimumArborescence {
 
         path.push_back(current);
         seen[current] = node;
-        if (heap[current].isEmpty()) return INF; 
+        if (heap[current].isEmpty()) return -1; // Return -1 if there is no arborescence
 
         Edge minEdge = heap[current].top(); 
         score += minEdge.weight;
@@ -157,41 +148,3 @@ struct MinimumArborescence {
     return score;
   }
 };
-
-// Get benchmark time
-double currentTime() {
-    static clock_t lastTime;
-    clock_t currentTime = clock();
-    double elapsed = double(currentTime - lastTime) / CLOCKS_PER_SEC;
-    lastTime = currentTime;
-    return elapsed;
-}
-
-// Main function to test the algorithm
-int main() {
-  for (int q = 0; q <= 100000; ++q) {
-    srand(q);
-
-        
-        int nodeCount = rand() % 1000 + 1;
-        MinimumArborescence solver(nodeCount);
-       
-
-        // Adding random edges to the graph
-        for (int i = 0; i < nodeCount; ++i) {
-            int edgesCount = rand() % nodeCount;
-            for (int k = 0; k < edgesCount; ++k) {
-                int j;
-                do {
-                    j = rand() % nodeCount;
-                } while (i == j);
-                int w = 1 + rand() % 100;
-                solver.addEdge(i, j, w);
-            }
-        }
-
-    double result = solver.solve(0);
-    cout << result << " " << currentTime() << endl;
-  }
-  cout << "*** NO PROBLEM ***" << endl;
-}
