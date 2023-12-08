@@ -4,6 +4,10 @@
 #include <cstdio>
 #include <ctime>
 #include <cstdlib>
+#include <iostream>
+#include <thread>
+
+using namespace std;
 
 clock_t lastTime;
 
@@ -15,50 +19,70 @@ double stopTimer() {
     return (double)(clock() - lastTime) / CLOCKS_PER_SEC;
 }
 
+Graph randomGraph(int nodeCount, int edgeCount) {
+  Graph graph(nodeCount);
 
-int main() {
-  
-  
-  for (int q = 0; q <= 100; ++q) {
-    srand(q);
-    int nodeCount = rand() % 1000 + 1;
-    Graph graph(nodeCount);
-    int totalWeight = 0;
+  graph.edges.reserve(edgeCount*nodeCount);
 
-    printf("Test %d ", q);
-    // Adding random edges to the graph
+  // Create a random graph multi-threaded
+    vector<thread> threads;
+    vector<vector<Edge>> edges(nodeCount);
+    
     for (int i = 0; i < nodeCount; ++i) {
-        int egdeCount = rand() % 1000;
-        for (int k = 0; k < egdeCount; ++k) {
-            int j;
-            do {
-                j = rand() % nodeCount;
-            } while (i == j);
-            int w = 1 + rand() % 100;
-            totalWeight += w;
-            graph.addEdge(i, j, w);
+        threads.push_back(thread([i, nodeCount, edgeCount, &graph, &edges]() {
+            for (int k = 0; k < edgeCount; ++k) {
+                int j;
+                do {
+                    j = rand() % nodeCount;
+                } while (i == j);
+                int w = 1 + rand() % 100;
+                edges[i].push_back({i, j, w});
+            }
+        }));
+    }
+
+    for (int i = 0; i < threads.size(); ++i) {
+        threads[i].join();
+    }
+
+    for (int i = 0; i < nodeCount; ++i) {
+        for (int j = 0; j < edges[i].size(); ++j) {
+            graph.addEdge(edges[i][j].src, edges[i][j].dst, edges[i][j].weight);
         }
     }
 
-    printf("(n = %d, avg deg = %.03f, w = %d): \n", nodeCount, (float)graph.edges.size() / nodeCount, totalWeight);
-    
+    return graph;
+}
+
+int main(int argc, char** argv) {
+  
+    int nodeCount = 0;
+    int edgeCount = 0;
+
+    if (argc > 2) {
+        nodeCount = atoi(argv[1]);
+        edgeCount = atoi(argv[2]);
+    } else {
+        std::cout << "Usage: " << argv[0] << " <nodeCount> <edgeCount>" << endl;
+        return 1;
+    }
+
+    Graph graph = randomGraph(nodeCount, edgeCount);
+
     spaghetti_edmonds edmonds(graph);
+    spaghetti_gabow gabow(graph);
+
     startTimer();
-    int edmondsScore = edmonds.findArborescence(0);
+    int edmondsResult = edmonds.findArborescence(0);
     double edmondsTime = stopTimer();
     
-    printf("Edmonds %.3lfs %d\n", edmondsTime, edmondsScore);
-    
-    spaghetti_gabow gabow(graph);
     startTimer();
-    int gabowScore = gabow.findArborescence(0);
+    int gabowResult = gabow.findArborescence(0);
     double gabowTime = stopTimer();
-    
-    printf("Gabow %.3lfs %d\n", gabowTime, gabowScore);
-    printf("-----------------\n\n");
-    
-  }
 
+    std::cout << "Edmonds: " << edmondsResult << " " << edmondsTime << endl;
+    std::cout << "Gabow: " << gabowResult << " " << gabowTime << endl;
+    
 
   return 0;
 }
