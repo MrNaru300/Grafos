@@ -1,7 +1,9 @@
 # Trabalho final - Arborescência
 Repositório para os códigos do trabalho em grupo desenvolvido na disciplina Teoria dos Grafos e Computabilidade do 4º período de Ciência da Computação na PUC Minas Coração Eucarístico (2023/2).
 
-A partir dos códigos de arborescência mínima disponíveis no GitHub [spaghetti-source](https://github.com/spaghetti-source), foram feitas pequenas alterações e testes de benchmark para avaliar duas versões do algoritmo: a proposta por Edmonds e a proposta por Tarjan/Gabow. 
+A partir dos códigos de arborescência mínima disponíveis no GitHub [spaghetti-source](https://github.com/spaghetti-source), foram feitas pequenas alterações e testes de benchmark para avaliar duas versões do algoritmo: a proposta por Edmonds e a proposta por Tarjan/Gabow.
+
+As implementações dos algoritmos estão em C++ e os benchmarks, em python.
 
 # Referências:
 - H. N. Gabow, Z. Galil, T. Spencer, and R. E. Tarjan (1986):
